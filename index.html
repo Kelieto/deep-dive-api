@@ -8,7 +8,7 @@
 <body>
     <h1>Weekly Deep Dive</h1>
     <div id="deep-dive-info">
-        <p>Loading Deep Dive information...</p>
+        <p>Loading Deep Dive information...</p>5
     </div>
 
     <script>
@@ -21,69 +21,61 @@ fetch('https://drgapi.com/v1/deepdives')
     return response.json();
   })
   .then(data => {
-    console.log(data); // Keep this for now to see the structure
+    console.log(data); // Keep this for now
 
     const deepDiveInfoDiv = document.getElementById('deep-dive-info');
     deepDiveInfoDiv.innerHTML = ''; // Clear "Loading..."
 
-    // **Step 1: Find the current Deep Dive object**
-    // You'll need to determine how the API indicates the current one.
-    // It might be the first in the array, or there might be a property like 'isCurrent: true'.
-
-    let currentDive;
-
-    // **Example 1: If the first item is always the current one**
     if (data && Array.isArray(data) && data.length > 0) {
-      currentDive = data[0];
-    }
+      data.forEach(deepDive => {
+        const diveSection = document.createElement('div');
+        diveSection.classList.add('deep-dive'); // Add a class for potential styling
 
-    // **Example 2: If there's an 'isCurrent' property (adjust the property name if needed)**
-    // if (data && Array.isArray(data)) {
-    //   currentDive = data.find(dive => dive.isCurrent === true);
-    // }
+        const nameHeading = document.createElement('h2');
+        nameHeading.textContent = deepDive.name || 'Deep Dive';
 
-    if (currentDive) {
-      const nameHeading = document.createElement('h2');
-      nameHeading.textContent = currentDive.name || 'Deep Dive'; // Assuming there's a 'name' property
+        diveSection.appendChild(nameHeading);
 
-      deepDiveInfoDiv.appendChild(nameHeading);
+        if (deepDive.stages && Array.isArray(deepDive.stages)) {
+          const stagesHeading = document.createElement('h3');
+          stagesHeading.textContent = 'Stages:';
+          diveSection.appendChild(stagesHeading);
 
-      // **Step 2: Access the stages (assuming it's an array)**
-      if (currentDive.stages && Array.isArray(currentDive.stages)) {
-        const stagesHeading = document.createElement('h3');
-        stagesHeading.textContent = 'Stages:';
-        deepDiveInfoDiv.appendChild(stagesHeading);
+          deepDive.stages.forEach((stage, index) => {
+            const stageInfo = document.createElement('div');
+            stageInfo.classList.add('stage'); // Add a class for potential styling
+            stageInfo.innerHTML = `<h4>Stage ${index + 1}</h4>`;
 
-        currentDive.stages.forEach((stage, index) => {
-          const stageInfo = document.createElement('div');
-          stageInfo.innerHTML = `<h4>Stage ${index + 1}</h4>`;
+            if (stage.mission && stage.mission.name) {
+              stageInfo.innerHTML += `<p>Mission: ${stage.mission.name}</p>`;
+            }
+            if (stage.planet && stage.planet.name) {
+              stageInfo.innerHTML += `<p>Planet: ${stage.planet.name}</p>`;
+            }
 
-          if (stage.mission && stage.mission.name) {
-            stageInfo.innerHTML += `<p>Mission: ${stage.mission.name}</p>`;
-          }
-          if (stage.planet && stage.planet.name) {
-            stageInfo.innerHTML += `<p>Planet: ${stage.planet.name}</p>`;
-          }
+            if (stage.modifiers && Array.isArray(stage.modifiers)) {
+              const modifiersList = document.createElement('ul');
+              modifiersList.innerHTML += '<li>Modifiers:</li>';
+              stage.modifiers.forEach(modifier => {
+                if (modifier.name) {
+                  modifiersList.innerHTML += `<li>${modifier.name}</li>`;
+                }
+              });
+              stageInfo.appendChild(modifiersList);
+            }
 
-          // **Step 3: Access the modifiers (assuming it's an array)**
-          if (stage.modifiers && Array.isArray(stage.modifiers)) {
-            const modifiersList = document.createElement('ul');
-            modifiersList.innerHTML += '<li>Modifiers:</li>';
-            stage.modifiers.forEach(modifier => {
-              if (modifier.name) {
-                modifiersList.innerHTML += `<li>${modifier.name}</li>`;
-              }
-            });
-            stageInfo.appendChild(modifiersList);
-          }
+            diveSection.appendChild(stageInfo);
+          });
+        } else {
+          const noStages = document.createElement('p');
+          noStages.textContent = 'No stage information found for this Deep Dive.';
+          diveSection.appendChild(noStages);
+        }
 
-          deepDiveInfoDiv.appendChild(stageInfo);
-        });
-      } else {
-        deepDiveInfoDiv.textContent = 'No stage information found.';
-      }
+        deepDiveInfoDiv.appendChild(diveSection);
+      });
     } else {
-      deepDiveInfoDiv.textContent = 'No current Deep Dive information found.';
+      deepDiveInfoDiv.textContent = 'No Deep Dive information found in the API response.';
     }
   })
   .catch(error => {
