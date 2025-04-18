@@ -3,14 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Simple Website</title>
+    <title>DRG Weekly Deep Dive</title>
 </head>
 <body>
-    <h1>Hello from GitHub Pages!</h1>
-    <p>This is a very basic website hosted for free.</p>
+    <h1>Weekly Deep Dive</h1>
+    <div id="deep-dive-info">
+        <p>Loading Deep Dive information...</p>
+    </div>
+
     <script>
-        // You can add your JavaScript code here later to call your API
-        console.log("Hello from JavaScript!");
+        // Our JavaScript code will go her
+        fetch('https://drgapi.com/v1/deepdives')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Assuming the API returns an array of Deep Dives,
+    // you'll need to find the one that is marked as 'current' or similar.
+    // Let's log the data to the console first to see its structure.
+    console.log(data);
+
+    // **You'll need to examine the 'data' in your browser's developer console**
+    // to understand its structure and find the current Deep Dive object
+    // and the specific fields you want to display.
+
+    // Once you know the structure, you can update the HTML.
+    // This is a placeholder - you'll need to adjust it based on the API response.
+    const deepDiveInfoDiv = document.getElementById('deep-dive-info');
+    deepDiveInfoDiv.innerHTML = ''; // Clear the loading message
+
+    // **Example (adapt based on the actual API response structure):**
+    if (data && Array.isArray(data) && data.length > 0) {
+      // Assuming the first element is the current one (you might need to filter)
+      const currentDive = data[0]; // **Adjust this based on how the API marks the current dive**
+
+      const nameHeading = document.createElement('h2');
+      nameHeading.textContent = currentDive.name || 'Deep Dive';
+
+      const mission1 = document.createElement('p');
+      mission1.textContent = `Stage 1: ${currentDive.stages[0].mission.name} on ${currentDive.stages[0].planet.name}`;
+
+      const modifier1 = document.createElement('p');
+      modifier1.textContent = `Modifier 1: ${currentDive.stages[0].modifiers[0].name}`;
+
+      deepDiveInfoDiv.appendChild(nameHeading);
+      deepDiveInfoDiv.appendChild(mission1);
+      deepDiveInfoDiv.appendChild(modifier1);
+
+      // **Add more code here to display other relevant information
+      // from the 'currentDive' object and its nested properties
+      // (e.g., stages 2 and 3, other modifiers, warnings, etc.)**
+
+    } else {
+      deepDiveInfoDiv.textContent = 'No Deep Dive information found.';
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching Deep Dive data:', error);
+    const deepDiveInfoDiv = document.getElementById('deep-dive-info');
+    deepDiveInfoDiv.textContent = 'Failed to load Deep Dive information.';
+  });
     </script>
 </body>
 </html>
